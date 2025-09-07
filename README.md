@@ -7,16 +7,60 @@ A real-time monitoring system for IV bags using FastAPI, MongoDB, and WebSockets
 - **Real-time Weight Monitoring**: Weight sensor data is received and stored in MongoDB
 - **Change Detection**: Only stores new records when weight changes (avoiding duplicate entries)
 - **Live Dashboard**: Web interface showing current weight with real-time updates via WebSocket
-- **Threshold Alerts**: Audio and visual alerts when weight drops below configurable threshold (50g default)
+- **Threshold Alerts**: Audio and visual alerts when weight drops below configurable threshold
 - **RESTful API**: Clean API endpoints for sensor data and monitoring
 
-## Architecture
+## Quick Start
 
-- **Backend**: FastAPI with async/await support
-- **Database**: MongoDB for time-series weight data
-- **Real-time Communication**: WebSockets for live updates
-- **Frontend**: HTML5 + JavaScript with responsive design
-- **Audio Alerts**: Browser-based audio alerts for critical thresholds
+### 1. Prerequisites
+- **Python 3.8+**
+- **MongoDB** running on localhost:27017
+
+### 2. Setup
+```bash
+# Clone or download the project
+cd IOT Project
+
+# Run the setup script (Windows)
+setup.bat
+
+# Or setup manually:
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 3. Configuration
+The project uses a simple `.env` file for configuration. The setup script creates one with default values:
+
+```env
+# Application Settings
+APP_NAME=IoT IV Bag Monitor
+DEBUG=true
+HOST=0.0.0.0
+PORT=8000
+
+# Database Settings
+MONGODB_URL=mongodb://localhost:27017
+DATABASE_NAME=iot_project
+COLLECTION_NAME=sensor_data
+
+# Alert Settings (weight in grams)
+WEIGHT_THRESHOLD_MIN=50
+WEIGHT_THRESHOLD_MAX=1000
+```
+
+### 4. Run the Application
+```bash
+# Start the server
+run.bat
+
+# Or run manually:
+python main.py
+```
+
+### 5. Access the Dashboard
+Open your browser and go to: http://localhost:8000
 
 ## Project Structure
 
@@ -24,72 +68,35 @@ A real-time monitoring system for IV bags using FastAPI, MongoDB, and WebSockets
 IOT Project/
 ├── .venv/                  # Python virtual environment
 ├── main.py                 # FastAPI application
+├── config.py               # Simple configuration loader
 ├── templates/
 │   └── live.html          # Live dashboard webpage
 ├── static/
-│   ├── alert.mp3          # Audio alert file (add your own)
-│   └── README_AUDIO.txt   # Instructions for audio file
+│   ├── alert.mp3          # Audio alert file
+│   └── README_AUDIO.txt   # Audio file instructions
 ├── test_sensor.py         # Sensor simulation script
 ├── requirements.txt       # Python dependencies
+├── .env                   # Configuration file
+├── setup.bat             # Setup script
+├── run.bat               # Run script
 └── README.md             # This file
 ```
 
-## Setup Instructions
-
-### Prerequisites
-
-1. **Python 3.12+** (already configured in your .venv)
-2. **MongoDB** running on localhost:27017
-
-### MongoDB Installation
+## MongoDB Installation
 
 **Option 1: MongoDB Community Server**
-
 1. Download from https://www.mongodb.com/try/download/community
 2. Install and run MongoDB service
 3. Default connection: `mongodb://localhost:27017`
 
 **Option 2: Using Docker**
-
 ```cmd
 docker run -d -p 27017:27017 --name mongodb mongo:latest
 ```
 
-### Running the Application
-
-1. **Activate your virtual environment** (already configured):
-
-   ```cmd
-   .venv\Scripts\activate
-   ```
-
-2. **Install dependencies** (already installed):
-
-   ```cmd
-   pip install -r requirements.txt
-   ```
-
-3. **Start the FastAPI server**:
-
-   ```cmd
-   "D:/IOT Project/.venv/Scripts/python.exe" main.py
-   ```
-
-   Or using uvicorn directly:
-
-   ```cmd
-   "D:/IOT Project/.venv/Scripts/python.exe" -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   ```
-
-4. **Access the application**:
-   - API Documentation: http://localhost:8000/docs
-   - Live Dashboard: http://localhost:8000/live
-   - Health Check: http://localhost:8000/health
-
 ## API Endpoints
 
 ### POST /sensor
-
 Receive sensor data from IoT device
 
 ```json
@@ -99,10 +106,9 @@ Receive sensor data from IoT device
 ```
 
 **Response**:
-
 ```json
 {
-  "status": "success",
+  "status": "success", 
   "message": "Weight recorded",
   "data": {
     "weight": 750,
@@ -111,24 +117,19 @@ Receive sensor data from IoT device
 }
 ```
 
-### GET /latest
-
-Get the most recent weight data
-
+**Response**:
 ```json
 {
   "weight": 750,
-  "timestamp": "2025-09-07T10:30:00.123456",
+  "timestamp": "2025-09-07T10:30:00.123456", 
   "alert": false
 }
 ```
 
 ### GET /live
-
 Serves the live dashboard webpage with real-time weight monitoring
 
 ### WebSocket /ws
-
 Real-time updates for connected clients
 
 ```json
@@ -140,7 +141,6 @@ Real-time updates for connected clients
 ```
 
 ### GET /health
-
 System health check
 
 ```json
@@ -153,24 +153,13 @@ System health check
 
 ## Testing
 
-### Manual Testing
-
-1. **Test API endpoints**:
-
-   ```cmd
-   "D:/IOT Project/.venv/Scripts/python.exe" test_sensor.py
-   ```
-
-   Choose option 1 to test all endpoints
-
-2. **Simulate sensor data**:
-   ```cmd
-   "D:/IOT Project/.venv/Scripts/python.exe" test_sensor.py
-   ```
-   Choose option 2 to run full IV bag depletion simulation
+### Sensor Simulation
+```cmd
+# Test API endpoints and simulate sensor data
+python test_sensor.py
+```
 
 ### IoT Device Integration
-
 To integrate with a real IoT device, send POST requests to `/sensor`:
 
 ```python
@@ -184,113 +173,45 @@ response = requests.post("http://your-server:8000/sensor", json={
 
 ## Configuration
 
-### Threshold Settings
+All settings are controlled via the `.env` file:
 
-Edit `main.py` to change the alert threshold:
-
-```python
-WEIGHT_THRESHOLD = 50  # Change this value (grams)
-```
-
-### Database Settings
-
-Edit `main.py` for different MongoDB configuration:
-
-```python
-MONGODB_URL = "mongodb://localhost:27017"
-DATABASE_NAME = "iot_monitoring"
-COLLECTION_NAME = "weights"
-```
-
-### Audio Alert
-
-1. Add your audio file to `static/alert.mp3`
-2. Supported formats: MP3, WAV
-3. Recommended: Short beep or alarm sound (1-3 seconds)
+- `WEIGHT_THRESHOLD_MIN`: Alert threshold in grams (default: 50)
+- `MONGODB_URL`: Database connection string  
+- `PORT`: Server port (default: 8000)
+- `DEBUG`: Enable development mode (true/false)
 
 ## Live Dashboard Features
 
 - **Real-time Weight Display**: Updates automatically via WebSocket
-- **Connection Status**: Shows WebSocket connection state
+- **Connection Status**: Shows WebSocket connection state  
 - **Alert System**: Visual and audio alerts when weight < threshold
 - **Responsive Design**: Works on desktop and mobile devices
-- **Browser Notifications**: Optional desktop notifications (requires permission)
 
-## Database Schema
+## Audio Alert
 
-**Collection**: `weights`
-
-```json
-{
-  "_id": "ObjectId",
-  "weight": 750,
-  "timestamp": "2025-09-07T10:30:00.123456"
-}
-```
-
-**Indexes**:
-
-- `timestamp`: For efficient time-based queries
-
-## Deployment Notes
-
-### Production Deployment
-
-1. Use a production WSGI server (already configured with uvicorn)
-2. Set up proper MongoDB authentication
-3. Use environment variables for configuration
-4. Enable HTTPS for WebSocket security
-5. Set up proper logging and monitoring
-
-### Docker Deployment
-
-```dockerfile
-FROM python:3.12-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
+1. Add your audio file to `static/alert.mp3`
+2. Supported formats: MP3, WAV
+3. Recommended: Short beep or alarm sound (1-3 seconds)
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **MongoDB Connection Failed**
-
-   - Ensure MongoDB is running: `mongosh` or check service status
-   - Check connection string in `main.py`
+   - Ensure MongoDB is running on localhost:27017
+   - Check connection string in `.env` file
 
 2. **WebSocket Connection Issues**
-
    - Check firewall settings
    - Ensure proper host/port configuration
 
 3. **Audio Not Playing**
-
    - Add `alert.mp3` file to `static/` directory
    - Check browser audio permissions
-   - Try different audio formats (MP3, WAV)
 
 4. **Import Errors**
    - Ensure virtual environment is activated
-   - Reinstall dependencies: `pip install -r requirements.txt`
-
-### Logs
-
-Check console output for detailed error messages and connection status.
-
-## Future Enhancements
-
-- [ ] Historical data visualization with charts
-- [ ] Multiple sensor support
-- [ ] SMS/Email notifications
-- [ ] Data export functionality
-- [ ] User authentication and roles
-- [ ] Advanced analytics and predictions
-- [ ] Mobile app integration
+   - Run: `pip install -r requirements.txt`
 
 ## License
 

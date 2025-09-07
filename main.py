@@ -8,12 +8,10 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
-import asyncio
 import json
-import os
 from fastapi import WebSocket, WebSocketDisconnect
 from contextlib import asynccontextmanager
-from config import settings
+import config
 
 # Data models
 
@@ -33,11 +31,11 @@ database = None
 collection = None
 connected_websockets = []
 
-# Configuration
-MONGODB_URL = settings.mongodb_url
-DATABASE_NAME = settings.database_name
-COLLECTION_NAME = settings.collection_name
-WEIGHT_THRESHOLD = int(os.getenv("WEIGHT_THRESHOLD_MIN", "50"))  # grams
+# Configuration from simplified config
+MONGODB_URL = config.MONGODB_URL
+DATABASE_NAME = config.DATABASE_NAME
+COLLECTION_NAME = config.COLLECTION_NAME
+WEIGHT_THRESHOLD = config.WEIGHT_THRESHOLD_MIN
 
 
 @asynccontextmanager
@@ -77,8 +75,8 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=settings.allow_credentials,
+    allow_origins=config.CORS_ORIGINS,
+    allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
@@ -298,7 +296,7 @@ async def health_check():
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True
+        host=config.HOST,
+        port=config.PORT,
+        reload=config.DEBUG
     )
