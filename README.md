@@ -13,10 +13,12 @@ A real-time monitoring system for IV bags using FastAPI, MongoDB, and WebSockets
 ## Quick Start
 
 ### 1. Prerequisites
+
 - **Python 3.8+**
 - **MongoDB** running on localhost:27017
 
 ### 2. Setup
+
 ```bash
 # Clone or download the project
 cd IOT Project
@@ -31,6 +33,7 @@ pip install -r requirements.txt
 ```
 
 ### 3. Configuration
+
 The project uses a simple `.env` file for configuration. The setup script creates one with default values:
 
 ```env
@@ -51,6 +54,7 @@ WEIGHT_THRESHOLD_MAX=1000
 ```
 
 ### 4. Run the Application
+
 ```bash
 # Start the server
 run.bat
@@ -60,6 +64,7 @@ python main.py
 ```
 
 ### 5. Access the Dashboard
+
 Open your browser and go to: http://localhost:8000
 
 ## Project Structure
@@ -85,11 +90,13 @@ IOT Project/
 ## MongoDB Installation
 
 **Option 1: MongoDB Community Server**
+
 1. Download from https://www.mongodb.com/try/download/community
 2. Install and run MongoDB service
 3. Default connection: `mongodb://localhost:27017`
 
 **Option 2: Using Docker**
+
 ```cmd
 docker run -d -p 27017:27017 --name mongodb mongo:latest
 ```
@@ -97,6 +104,7 @@ docker run -d -p 27017:27017 --name mongodb mongo:latest
 ## API Endpoints
 
 ### POST /sensor
+
 Receive sensor data from IoT device
 
 ```json
@@ -106,9 +114,10 @@ Receive sensor data from IoT device
 ```
 
 **Response**:
+
 ```json
 {
-  "status": "success", 
+  "status": "success",
   "message": "Weight recorded",
   "data": {
     "weight": 750,
@@ -118,18 +127,21 @@ Receive sensor data from IoT device
 ```
 
 **Response**:
+
 ```json
 {
   "weight": 750,
-  "timestamp": "2025-09-07T10:30:00.123456", 
+  "timestamp": "2025-09-07T10:30:00.123456",
   "alert": false
 }
 ```
 
 ### GET /live
+
 Serves the live dashboard webpage with real-time weight monitoring
 
 ### WebSocket /ws
+
 Real-time updates for connected clients
 
 ```json
@@ -141,6 +153,7 @@ Real-time updates for connected clients
 ```
 
 ### GET /health
+
 System health check
 
 ```json
@@ -154,12 +167,14 @@ System health check
 ## Testing
 
 ### Sensor Simulation
+
 ```cmd
 # Test API endpoints and simulate sensor data
 python test_sensor.py
 ```
 
 ### IoT Device Integration
+
 To integrate with a real IoT device, send POST requests to `/sensor`:
 
 ```python
@@ -176,14 +191,14 @@ response = requests.post("http://your-server:8000/sensor", json={
 All settings are controlled via the `.env` file:
 
 - `WEIGHT_THRESHOLD_MIN`: Alert threshold in grams (default: 50)
-- `MONGODB_URL`: Database connection string  
+- `MONGODB_URL`: Database connection string
 - `PORT`: Server port (default: 8000)
 - `DEBUG`: Enable development mode (true/false)
 
 ## Live Dashboard Features
 
 - **Real-time Weight Display**: Updates automatically via WebSocket
-- **Connection Status**: Shows WebSocket connection state  
+- **Connection Status**: Shows WebSocket connection state
 - **Alert System**: Visual and audio alerts when weight < threshold
 - **Responsive Design**: Works on desktop and mobile devices
 
@@ -198,14 +213,17 @@ All settings are controlled via the `.env` file:
 ### Common Issues
 
 1. **MongoDB Connection Failed**
+
    - Ensure MongoDB is running on localhost:27017
    - Check connection string in `.env` file
 
 2. **WebSocket Connection Issues**
+
    - Check firewall settings
    - Ensure proper host/port configuration
 
 3. **Audio Not Playing**
+
    - Add `alert.mp3` file to `static/` directory
    - Check browser audio permissions
 
