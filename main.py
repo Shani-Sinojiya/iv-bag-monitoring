@@ -34,10 +34,10 @@ collection = None
 connected_websockets = []
 
 # Configuration
-MONGODB_URL = "mongodb://localhost:27017"
-DATABASE_NAME = "iot_monitoring"
-COLLECTION_NAME = "weights"
-WEIGHT_THRESHOLD = 50  # grams
+MONGODB_URL = settings.mongodb_url
+DATABASE_NAME = settings.database_name
+COLLECTION_NAME = settings.collection_name
+WEIGHT_THRESHOLD = int(os.getenv("WEIGHT_THRESHOLD_MIN", "50"))  # grams
 
 
 @asynccontextmanager
