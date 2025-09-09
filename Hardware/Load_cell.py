@@ -3,17 +3,29 @@ import time
 import requests
 from datetime import datetime
 
-DT = 27
-SCK = 17
+# --- Pin Configuration ---
+DT = 5
+SCK = 6
+Low_Threshold_light = 26   # Red LED
+High_Threshold_light = 21  # Green LED
 
 API_URL = "https://iot.shanisinojiya.me/sensor"
+LOW_LIMIT = 50   # g - critical low threshold
+REFERENCE_UNIT = 40  # calibration factor
 
-# Setup
-gpio.setwarnings(False)
-gpio.setmode(gpio.BCM)
-gpio.setup(SCK, gpio.OUT)
+tare = 0  # will be set after calibration
 
 
+# --- Setup GPIO ---
+def setup_gpio():
+    gpio.setwarnings(False)
+    gpio.setmode(gpio.BCM)
+    gpio.setup(SCK, gpio.OUT)
+    gpio.setup(Low_Threshold_light, gpio.OUT)
+    gpio.setup(High_Threshold_light, gpio.OUT)
+
+
+# --- HX711 Read ---
 def readCount():
     Count = 0
     gpio.setup(DT, gpio.OUT)
@@ -37,14 +49,38 @@ def readCount():
     return Count
 
 
-def send_data_to_server(weight: float):
-    """
-    Send weight data to server (as integer, replace negatives with 0)
-    """
-    try:
-        # Replace negative values with 0
-        safe_weight = 0 if weight < 0 else int(round(weight))
+# --- Calibration ---
+def calibrate():
+    print("Calibrating... Remove any weight from the load cell.")
+    time.sleep(2)
+    tare_value = readCount()
+    print("Tare value set.")
+    return tare_value
 
+
+# --- Get Weight ---
+def get_weight():
+    raw_value = readCount()
+    weight = (raw_value - tare) / REFERENCE_UNIT
+    return weight
+
+
+# --- Light Control ---
+def control_lights(weight):
+    if weight <= LOW_LIMIT:
+        gpio.output(Low_Threshold_light, 1)   # Red ON
+        gpio.output(High_Threshold_light, 0)  # Green OFF
+        print("?? Low weight alert!")
+    else:
+        gpio.output(Low_Threshold_light, 0)   # Red OFF
+        gpio.output(High_Threshold_light, 1)  # Green ON
+        print("?? Weight OK")
+
+
+# --- Send Data to Server ---
+def send_data_to_server(weight: float):
+    try:
+        safe_weight = 0 if weight < 0 else int(round(weight))
         payload = {"weight": safe_weight}
         response = requests.post(API_URL, json=payload, timeout=5)
 
@@ -56,31 +92,32 @@ def send_data_to_server(weight: float):
             print(f"? Error: {response.status_code} - {response.text}")
 
     except requests.exceptions.RequestException as e:
-        print(f"? Connection error: {e}")
+        print(f"?? Connection error: {e}")
 
 
+# --- Main Loop ---
+def main():
+    global tare
+    setup_gpio()
+    tare = calibrate()
 
-# --- Calibration ---
-print("Calibrating... Remove any weight from the load cell.")
-time.sleep(2)
-tare = readCount()
-print("Tare value set.")
+    try:
+        while True:
+            weight = get_weight()
+            print(f"Weight: {weight:.2f} g")
 
-# Adjust this after calibration with known weight
-referenceUnit = 40  # Example scaling factor
+            control_lights(weight)
+            send_data_to_server(weight)
 
-try:
-    while True:
-        
-        raw_value = readCount()
-        weight = (raw_value - tare) / referenceUnit  # grams
-        print(f"Weight: {weight:.2f} g")
+            time.sleep(1)
 
-        # Send to server
-        send_data_to_server(weight)
+    except KeyboardInterrupt:
+        print("\nStopped by user")
 
-        time.sleep(1)
+    finally:
+        gpio.cleanup()
 
-except KeyboardInterrupt:
-    print("\nStopped by user")
-    gpio.cleanup()
+
+# --- Run Program ---
+if __name__ == "__main__":
+    main()
