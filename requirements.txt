@@ -1,9 +1,2 @@
-fastapi
-uvicorn
-pymongo
-motor
-python-multipart
-jinja2
-requests
-websockets
-dotenv
+RPi.GPIO
+requests==2.26.0

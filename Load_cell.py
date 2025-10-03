@@ -1,5 +1,5 @@
-import datetime
-import RPi.GPIO as GPIO
+from datetime import datetime
+import RPi.GPIO as GPIO  # type: ignore
 import time
 import sys
 import requests
@@ -188,7 +188,7 @@ def send_data_to_server(weight: float):
 
         if response.status_code == 200:
             result = response.json()
-            timestamp = datetime.now().strftime("%H:%M:%S")
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(
                 f"[{timestamp}] ? Sent: {safe_weight} g | Response: {result}", flush=True)
         else:
