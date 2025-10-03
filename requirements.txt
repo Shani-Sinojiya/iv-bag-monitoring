@@ -1,2 +1,10 @@
+# IV Bag Monitoring System Dependencies
+# GPIO library for Raspberry Pi
 RPi.GPIO
-requests==2.26.0
+
+# HTTP requests for API communication
+requests
+
+# Optional: For better development experience
+# pylint
+# black

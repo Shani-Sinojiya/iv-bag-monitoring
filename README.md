@@ -15,9 +15,42 @@
 ## 📋 Table of Contents
 
 - [Features](#-features)
-- [System Architecture](#-system-architecture)
+- [Project Structure](#-project-structure)
 - [Quick Start](#-quick-start)
 - [Installation](#-installation)
+
+## 🏗️ Project Structure
+
+The codebase is now organized into modular components for better maintainability:
+
+```
+IOT Project/
+├── main.py                 # Main application entry point
+├── setup.py               # Installation and setup script
+├── requirements.txt       # Python dependencies
+├── README.md             # Project documentation
+├──
+├── sensors/              # Sensor drivers
+│   ├── __init__.py
+│   └── hx711.py         # HX711 load cell driver
+├──
+├── hardware/            # Hardware control
+│   ├── __init__.py
+│   └── gpio_control.py  # GPIO and LED control
+├──
+├── api/                 # API communication
+│   ├── __init__.py
+│   └── client.py        # Server communication client
+├──
+├── calibration/         # Calibration procedures
+│   ├── __init__.py
+│   └── calibrator.py    # Scale calibration logic
+├──
+└── config/              # Configuration
+    ├── __init__.py
+    └── settings.py      # System settings and constants
+```
+
 - [Configuration](#-configuration)
 - [Usage](#-usage)
 - [API Documentation](#-api-documentation)
