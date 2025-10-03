@@ -2,25 +2,9 @@
 Simple configuration for IoT IV Bag Monitoring System
 """
 import os
+from dotenv import load_dotenv
 
-
-def load_env():
-    """Load environment variables from .env file"""
-    env_file = ".env"
-    if os.path.exists(env_file):
-        with open(env_file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#') and '=' in line:
-                    key, value = line.split('=', 1)
-                    key = key.strip()
-                    value = value.strip().strip('"').strip("'")
-                    if key and not os.getenv(key):
-                        os.environ[key] = value
-
-
-# Load environment variables
-load_env()
+load_dotenv()
 
 # Application Settings
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"

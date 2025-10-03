@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
@@ -81,8 +81,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 # Templates
 templates = Jinja2Templates(directory="templates")
@@ -174,6 +176,11 @@ async def insert_weight_record(weight: int) -> WeightRecord:
 # API Routes
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("static/favicon.ico")
+
+
 @app.post("/sensor")
 async def receive_sensor_data(sensor_data: SensorData):
     """Receive sensor data from IoT device"""
@@ -186,7 +193,8 @@ async def receive_sensor_data(sensor_data: SensorData):
             message = json.dumps({
                 "weight": record.weight,
                 "timestamp": record.timestamp.isoformat(),
-                "alert": record.weight < WEIGHT_THRESHOLD
+                "alert": record.weight < WEIGHT_THRESHOLD,
+                "threshold": WEIGHT_THRESHOLD
             })
             await manager.broadcast(message)
 
@@ -239,7 +247,8 @@ async def websocket_endpoint(websocket: WebSocket):
             message = json.dumps({
                 "weight": latest.weight,
                 "timestamp": latest.timestamp.isoformat(),
-                "alert": latest.weight < WEIGHT_THRESHOLD
+                "alert": latest.weight < WEIGHT_THRESHOLD,
+                "threshold": WEIGHT_THRESHOLD
             })
             await manager.send_personal_message(message, websocket)
     except Exception as e:
@@ -247,8 +256,61 @@ async def websocket_endpoint(websocket: WebSocket):
 
     try:
         while True:
-            # Keep connection alive
-            await websocket.receive_text()
+            # Receive and handle messages from client
+            message = await websocket.receive_text()
+
+            # Handle different message types
+            try:
+                data = json.loads(message)
+                message_type = data.get("type", "unknown")
+
+                if message_type == "init":
+                    client_id = data.get("clientId", "unknown")
+                    print(
+                        f"📥 Initial message received from client: {client_id}")
+
+                    # Send acknowledgment back to client
+                    ack_message = json.dumps({
+                        "type": "init_ack",
+                        "message": "Connection established successfully",
+                        "server_time": datetime.utcnow().isoformat(),
+                        "threshold": WEIGHT_THRESHOLD
+                    })
+                    await manager.send_personal_message(ack_message, websocket)
+
+                elif message_type == "ping":
+                    # Respond to ping with pong
+                    pong_message = json.dumps({
+                        "type": "pong",
+                        "timestamp": datetime.utcnow().isoformat()
+                    })
+                    await manager.send_personal_message(pong_message, websocket)
+
+                elif message_type == "request_threshold":
+                    # Send current threshold value
+                    threshold_message = json.dumps({
+                        "type": "threshold_update",
+                        "threshold": WEIGHT_THRESHOLD,
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "message": "Current threshold value"
+                    })
+                    await manager.send_personal_message(threshold_message, websocket)
+                    print(f"📊 Threshold sent to client: {WEIGHT_THRESHOLD}g")
+
+                else:
+                    print(f"📥 Received message: {message}")
+
+            except json.JSONDecodeError:
+                # Handle simple text messages (like "ping")
+                if message.strip().lower() == "ping":
+                    pong_message = json.dumps({
+                        "type": "pong",
+                        "timestamp": datetime.utcnow().isoformat()
+                    })
+                    await manager.send_personal_message(pong_message, websocket)
+                else:
+                    print(f"📥 Received text message: {message}")
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 

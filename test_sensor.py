@@ -19,7 +19,7 @@ def simulate_iv_bag_depletion():
     print("-" * 50)
 
     # Starting weight (full IV bag - 1000ml = ~1000g plus bag weight ~100g)
-    current_weight = 1100
+    current_weight = 100
 
     start_time = time.time()
 

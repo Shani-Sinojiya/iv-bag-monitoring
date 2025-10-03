@@ -1,111 +1,213 @@
-# IoT IV Bag Monitoring System
+# 🏥 IV Bag Monitoring System
 
-A real-time monitoring system for IV bags using FastAPI, MongoDB, and WebSockets.
+<div align="center">
 
-## Features
+![IV Monitoring](https://img.shields.io/badge/IV-Monitoring-blue)
+![Python](https://img.shields.io/badge/Python-3.8+-green)
+![FastAPI](https://img.shields.io/badge/FastAPI-Latest-red)
+![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green)
+![WebSocket](https://img.shields.io/badge/WebSocket-Real--time-orange)
 
-- **Real-time Weight Monitoring**: Weight sensor data is received and stored in MongoDB
-- **Change Detection**: Only stores new records when weight changes (avoiding duplicate entries)
-- **Live Dashboard**: Web interface showing current weight with real-time updates via WebSocket
-- **Threshold Alerts**: Audio and visual alerts when weight drops below configurable threshold
-- **RESTful API**: Clean API endpoints for sensor data and monitoring
+**A comprehensive real-time IoT monitoring system for IV bag weight tracking with intelligent alerts and modern dashboard interface.**
 
-## Quick Start
+</div>
 
-### 1. Prerequisites
+## 📋 Table of Contents
 
-- **Python 3.8+**
-- **MongoDB** running on localhost:27017
+- [Features](#-features)
+- [System Architecture](#-system-architecture)
+- [Quick Start](#-quick-start)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Usage](#-usage)
+- [API Documentation](#-api-documentation)
+- [Hardware Integration](#-hardware-integration)
+- [Dashboard Features](#-dashboard-features)
+- [Development](#-development)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-### 2. Setup
+## ✨ Features
+
+### 🔄 Real-time Monitoring
+
+- **Live Weight Tracking**: Continuous monitoring of IV bag weight with real-time updates
+- **WebSocket Communication**: Instant data transmission for immediate response
+- **Smart Data Storage**: Efficient MongoDB integration with change detection
+- **Connection Status**: Real-time connection monitoring with automatic reconnection
+
+### 📊 Advanced Analytics
+
+- **Weight Trend Analysis**: Interactive Chart.js visualization with localStorage persistence
+- **Historical Data**: Configurable data retention (50-500 data points)
+- **Data Export**: Easy data management and clearing functionality
+- **Real-time Graphs**: Live updating charts with smooth animations
+
+### 🚨 Intelligent Alert System
+
+- **Customizable Thresholds**: Configurable weight limits for different scenarios
+- **Multi-modal Alerts**: Audio + visual notifications
+- **Custom Audio Files**: Support for MP3/WAV alert sounds
+- **Browser Notifications**: Desktop notification support
+- **Alert History**: Complete tracking of all alert events
+
+### 🎨 Modern Dashboard
+
+- **Professional UI**: Modern dark theme with gradient effects
+- **Responsive Design**: Mobile-friendly interface that works on all devices
+- **Real-time Status**: Live connection and system status indicators
+- **Interactive Controls**: Easy-to-use control panels and buttons
+
+## 🏗️ System Architecture
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   IoT Sensors   │────│   FastAPI Server │────│   MongoDB       │
+│  (Weight Scale) │    │                  │    │   Database      │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                              │
+                              │ WebSocket
+                              │
+                    ┌──────────────────┐
+                    │  Web Dashboard   │
+                    │   (HTML/CSS/JS)  │
+                    └──────────────────┘
+```
+
+### Technology Stack
+
+- **Backend**: Python FastAPI with async support
+- **Database**: MongoDB with Motor (async driver)
+- **Frontend**: HTML5, CSS3, JavaScript ES6+
+- **Real-time**: WebSocket communication
+- **Visualization**: Chart.js for data visualization
+- **Hardware**: Arduino-compatible sensors (optional)
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.8 or higher
+- MongoDB (local or cloud)
+- Modern web browser
+
+### 1-Minute Setup
 
 ```bash
-# Clone or download the project
-cd IOT Project
+# Clone the repository
+git clone https://github.com/Shani-Sinojiya/iv-bag-monitoring.git
+cd iv-bag-monitoring
 
-# Run the setup script (Windows)
-setup.bat
+# Install dependencies
+pip install -r requirements.txt
 
-# Or setup manually:
-python -m venv .venv
-.venv\Scripts\activate
+# Start MongoDB (if using local installation)
+# Windows: net start MongoDB
+# macOS/Linux: sudo systemctl start mongod
+
+# Run the application
+python main.py
+```
+
+Access your dashboard at: **http://localhost:8000**
+
+## 📦 Installation
+
+### Option 1: Direct Installation
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 3. Configuration
+### Option 2: Using Docker
 
-The project uses a simple `.env` file for configuration. The setup script creates one with default values:
+```bash
+# Start MongoDB container
+docker run -d -p 27017:27017 --name mongodb mongo:latest
+
+# Build and run the application
+docker build -t iv-monitoring .
+docker run -p 8000:8000 iv-monitoring
+```
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Create a `.env` file in the project root:
 
 ```env
 # Application Settings
-APP_NAME=IoT IV Bag Monitor
+APP_NAME=IV Bag Monitoring System
 DEBUG=true
 HOST=0.0.0.0
 PORT=8000
 
-# Database Settings
+# Database Configuration
 MONGODB_URL=mongodb://localhost:27017
-DATABASE_NAME=iot_project
-COLLECTION_NAME=sensor_data
+DATABASE_NAME=iv_monitoring
+COLLECTION_NAME=weight_readings
 
-# Alert Settings (weight in grams)
+# Alert Configuration
 WEIGHT_THRESHOLD_MIN=50
 WEIGHT_THRESHOLD_MAX=1000
+
+# System Settings
+MAX_RECONNECT_ATTEMPTS=5
+WEBSOCKET_HEARTBEAT_INTERVAL=30
 ```
 
-### 4. Run the Application
+### Audio Configuration
+
+1. Place your alert audio file in `static/alert.mp3`
+2. Supported formats: MP3, WAV, OGG
+3. Recommended: 2-5 second duration, clear alert tone
+
+## 🎯 Usage
+
+### Starting the System
 
 ```bash
-# Start the server
-run.bat
-
-# Or run manually:
+# Development mode
 python main.py
+
+# Production mode
+uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-### 5. Access the Dashboard
+### Accessing the Dashboard
 
-Open your browser and go to: http://localhost:8000
+1. Open your browser and navigate to `http://localhost:8000`
+2. The dashboard will automatically connect via WebSocket
+3. Real-time weight data will appear as it's received
 
-## Project Structure
+### Testing with Simulated Data
 
-```
-IOT Project/
-├── .venv/                  # Python virtual environment
-├── main.py                 # FastAPI application
-├── config.py               # Simple configuration loader
-├── templates/
-│   └── live.html          # Live dashboard webpage
-├── static/
-│   ├── alert.mp3          # Audio alert file
-│   └── README_AUDIO.txt   # Audio file instructions
-├── test_sensor.py         # Sensor simulation script
-├── requirements.txt       # Python dependencies
-├── .env                   # Configuration file
-├── setup.bat             # Setup script
-├── run.bat               # Run script
-└── README.md             # This file
+```bash
+# Run the sensor simulator
+python test_sensor.py
 ```
 
-## MongoDB Installation
+## 📡 API Documentation
 
-**Option 1: MongoDB Community Server**
+### Endpoints
 
-1. Download from https://www.mongodb.com/try/download/community
-2. Install and run MongoDB service
-3. Default connection: `mongodb://localhost:27017`
+#### `POST /sensor`
 
-**Option 2: Using Docker**
+Submit weight sensor data
 
-```cmd
-docker run -d -p 27017:27017 --name mongodb mongo:latest
-```
-
-## API Endpoints
-
-### POST /sensor
-
-Receive sensor data from IoT device
+**Request:**
 
 ```json
 {
@@ -113,124 +215,302 @@ Receive sensor data from IoT device
 }
 ```
 
-**Response**:
+**Response:**
 
 ```json
 {
   "status": "success",
-  "message": "Weight recorded",
+  "message": "Weight recorded successfully",
   "data": {
     "weight": 750,
-    "timestamp": "2025-09-07T10:30:00.123456"
+    "timestamp": "2025-10-03T14:30:00.123456",
+    "alert": false,
+    "threshold": 50
   }
 }
 ```
 
-**Response**:
+#### `GET /api/latest`
+
+Get the most recent weight reading
+
+**Response:**
 
 ```json
 {
   "weight": 750,
-  "timestamp": "2025-09-07T10:30:00.123456",
-  "alert": false
+  "timestamp": "2025-10-03T14:30:00.123456",
+  "alert": false,
+  "threshold": 50
 }
 ```
 
-### GET /live
-
-Serves the live dashboard webpage with real-time weight monitoring
-
-### WebSocket /ws
-
-Real-time updates for connected clients
-
-```json
-{
-  "weight": 750,
-  "timestamp": "2025-09-07T10:30:00.123456",
-  "alert": false
-}
-```
-
-### GET /health
+#### `GET /health`
 
 System health check
+
+**Response:**
 
 ```json
 {
   "status": "healthy",
   "database": "connected",
-  "threshold": 50
+  "websocket_connections": 2,
+  "threshold": 50,
+  "uptime": "02:30:45"
 }
 ```
 
-## Testing
+#### `WebSocket /ws`
 
-### Sensor Simulation
+Real-time data stream
 
-```cmd
-# Test API endpoints and simulate sensor data
+**Message Types:**
+
+```json
+// Initial connection
+{
+  "type": "init",
+  "clientId": "client-1696348200123",
+  "timestamp": "2025-10-03T14:30:00.123456"
+}
+
+// Sensor data
+{
+  "type": "sensor_data",
+  "weight": 750,
+  "timestamp": "2025-10-03T14:30:00.123456",
+  "alert": false,
+  "threshold": 50
+}
+
+// Threshold update
+{
+  "type": "threshold_update",
+  "threshold": 75,
+  "timestamp": "2025-10-03T14:30:00.123456"
+}
+```
+
+## 🔧 Hardware Integration
+
+### Arduino Integration Example
+
+```cpp
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+#include "HX711.h"
+
+// Load cell pins
+#define LOADCELL_DOUT_PIN  3
+#define LOADCELL_SCK_PIN   2
+
+HX711 scale;
+
+void setup() {
+  Serial.begin(115200);
+  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+
+  // Connect to WiFi
+  WiFi.begin("your_wifi", "your_password");
+
+  // Calibrate scale
+  scale.set_scale(2280.f);  // Calibration factor
+  scale.tare();             // Reset to zero
+}
+
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    float weight = scale.get_units(10);  // Average of 10 readings
+
+    // Send data to server
+    HTTPClient http;
+    http.begin("http://your-server:8000/sensor");
+    http.addHeader("Content-Type", "application/json");
+
+    String payload = "{\"weight\":" + String(weight, 2) + "}";
+    int httpResponseCode = http.POST(payload);
+
+    http.end();
+  }
+
+  delay(5000);  // Send data every 5 seconds
+}
+```
+
+### Supported Hardware
+
+- **Load Cells**: HX711-based weight sensors
+- **Microcontrollers**: Arduino Uno/Nano, ESP32, ESP8266, Raspberry Pi
+- **Connectivity**: WiFi, Ethernet, Bluetooth
+- **Display**: LCD screens (optional, code available in `Hardware/` folder)
+
+## 🖥️ Dashboard Features
+
+### Main Dashboard
+
+- **Real-time Weight Display**: Large, easy-to-read weight indicator
+- **Connection Status**: Live WebSocket connection monitoring
+- **System Status**: Overall system health and alert state
+- **Threshold Display**: Current alert threshold setting
+
+### Weight Trend Chart
+
+- **Interactive Graph**: Chart.js-powered visualization
+- **Data Persistence**: Automatic localStorage saving
+- **Configurable History**: 50-500 data points retention
+- **Real-time Updates**: Live data streaming
+- **Export Options**: Clear data and configuration controls
+
+### Alert System
+
+- **Visual Indicators**: Color-coded status changes
+- **Audio Alerts**: Custom MP3/WAV file support
+- **Browser Notifications**: Desktop notification support
+- **Alert History**: Complete tracking of all events
+
+### System Information
+
+- **Threshold Settings**: Current alert threshold
+- **Alert Statistics**: Total alerts and last alert time
+- **Connection Info**: WebSocket status and data counts
+- **System Health**: Real-time system monitoring
+
+## 🛠️ Development
+
+### Project Structure
+
+```
+iv-bag-monitoring/
+├── 📁 Hardware/              # Arduino and sensor code
+│   ├── arduino.py           # Arduino communication
+│   ├── Load_cell.py         # Load cell sensor code
+│   ├── lcd.py               # LCD display code
+│   └── temperature.py       # Temperature sensor
+├── 📁 static/               # Static web assets
+│   ├── alert.mp3           # Alert audio file
+│   └── README_AUDIO.txt    # Audio setup guide
+├── 📁 templates/           # HTML templates
+│   └── live.html          # Main dashboard
+├── 📄 main.py             # FastAPI application
+├── 📄 config.py           # Configuration management
+├── 📄 test_sensor.py      # Testing utilities
+├── 📄 requirements.txt    # Python dependencies
+├── 📄 .env               # Environment configuration
+└── 📄 README.md          # This file
+```
+
+### Adding Features
+
+1. **Custom Sensors**: Add new sensor types in `Hardware/` folder
+2. **Dashboard Widgets**: Extend `templates/live.html`
+3. **API Endpoints**: Add new routes in `main.py`
+4. **Alert Types**: Customize alert logic in WebSocket handlers
+
+### Testing
+
+```bash
+# Unit tests
+python -m pytest tests/
+
+# Integration tests
 python test_sensor.py
+
+# Load testing
+python -m locust -f tests/load_test.py
 ```
 
-### IoT Device Integration
-
-To integrate with a real IoT device, send POST requests to `/sensor`:
-
-```python
-import requests
-
-# Send weight data
-response = requests.post("http://your-server:8000/sensor", json={
-    "weight": 875  # weight in grams
-})
-```
-
-## Configuration
-
-All settings are controlled via the `.env` file:
-
-- `WEIGHT_THRESHOLD_MIN`: Alert threshold in grams (default: 50)
-- `MONGODB_URL`: Database connection string
-- `PORT`: Server port (default: 8000)
-- `DEBUG`: Enable development mode (true/false)
-
-## Live Dashboard Features
-
-- **Real-time Weight Display**: Updates automatically via WebSocket
-- **Connection Status**: Shows WebSocket connection state
-- **Alert System**: Visual and audio alerts when weight < threshold
-- **Responsive Design**: Works on desktop and mobile devices
-
-## Audio Alert
-
-1. Add your audio file to `static/alert.mp3`
-2. Supported formats: MP3, WAV
-3. Recommended: Short beep or alarm sound (1-3 seconds)
-
-## Troubleshooting
+## 🔍 Troubleshooting
 
 ### Common Issues
 
-1. **MongoDB Connection Failed**
+#### MongoDB Connection
 
-   - Ensure MongoDB is running on localhost:27017
-   - Check connection string in `.env` file
+```bash
+# Check MongoDB status
+systemctl status mongod
 
-2. **WebSocket Connection Issues**
+# Start MongoDB service
+sudo systemctl start mongod
 
-   - Check firewall settings
-   - Ensure proper host/port configuration
+# Check connection
+mongo --eval "db.adminCommand('ismaster')"
+```
 
-3. **Audio Not Playing**
+#### WebSocket Issues
 
-   - Add `alert.mp3` file to `static/` directory
-   - Check browser audio permissions
+- Check firewall settings on port 8000
+- Verify proxy configurations for WebSocket support
+- Ensure CORS settings are properly configured
 
-4. **Import Errors**
-   - Ensure virtual environment is activated
-   - Run: `pip install -r requirements.txt`
+#### Audio Not Playing
 
-## License
+- Verify `alert.mp3` exists in `static/` folder
+- Check browser audio permissions
+- Test with different audio formats (MP3, WAV, OGG)
 
-This project is for educational and development purposes.
+#### Data Not Persisting
+
+- Verify MongoDB write permissions
+- Check disk space availability
+- Confirm database connection string in `.env`
+
+### Debug Mode
+
+Enable debug logging:
+
+```bash
+export DEBUG=true
+python main.py
+```
+
+### Log Files
+
+```bash
+# Application logs
+tail -f logs/app.log
+
+# MongoDB logs
+tail -f /var/log/mongodb/mongod.log
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md).
+
+### Development Setup
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
+
+### Code Style
+
+- Follow PEP 8 for Python code
+- Use meaningful variable names
+- Add docstrings for functions and classes
+- Include type hints where appropriate
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **FastAPI** for the excellent async framework
+- **MongoDB** for robust data storage
+- **Chart.js** for beautiful visualizations
+- **Arduino Community** for hardware inspiration
+
+---
+
+<div align="center">
+
+**Made with ❤️ for healthcare professionals**
+
+[Report Bug](https://github.com/Shani-Sinojiya/iv-bag-monitoring/issues) | [Request Feature](https://github.com/Shani-Sinojiya/iv-bag-monitoring/issues)
+
+</div>
